@@ -22,7 +22,7 @@ index.html
 
 Puedes abrir el cuaderno interactivo desde el siguiente enlace:
 
-🔗 [Abrir cuaderno virtual](file:///C:/Users/andre/Desktop/Fisica3/index.html)
+🔗 [Abrir cuaderno virtual](cuaderno/index.html)
 
 ## Objetivo
 
