@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulación de Oscilación</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f3ebff;
+            font-family: 'Nunito', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #4a3b69;
+        }
+
+        .contenedor {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(109, 40, 217, 0.15);
+            text-align: center;
+        }
+
+        h1 {
+            margin-top: 0;
+            color: #5b21b6;
+            font-size: 24px;
+        }
+
+        p {
+            color: #8b5cf6;
+            margin-bottom: 25px;
+            font-size: 15px;
+        }
+
+        .controles {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        button {
+            background-color: #c4b5fd;
+            color: #4c1d95;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-family: inherit;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(139, 92, 246, 0.2);
+        }
+
+        button:hover {
+            background-color: #a78bfa;
+            transform: translateY(-2px);
+        }
+
+        button.activo {
+            background-color: #7c3aed;
+            color: white;
+            box-shadow: 0 6px 12px rgba(124, 58, 237, 0.4);
+        }
+
+        canvas {
+            background-color: #faf5ff;
+            border: 2px solid #ddd6fe;
+            border-radius: 15px;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="contenedor">
+        <h1>✨ Simulador de Oscilación ✨</h1>
+        <p>Elige cómo quieres visualizar el movimiento</p>
+
+        <div class="controles">
+            <button id="btnSencilla" class="activo" onclick="cambiarModo('sencilla')">Sencilla</button>
+            <button id="btnCompleta" onclick="cambiarModo('completa')">Completa (Onda)</button>
+        </div>
+
+        <canvas id="lienzo" width="500" height="300"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('lienzo');
+        const ctx = canvas.getContext('2d');
+
+        let modoActual = 'sencilla';
+        let tiempo = 0;
+        let rastroOnda = [];
+
+        function cambiarModo(modo) {
+            modoActual = modo;
+
+            document.getElementById('btnSencilla').classList.remove('activo');
+            document.getElementById('btnCompleta').classList.remove('activo');
+
+            if (modo === 'sencilla') {
+                document.getElementById('btnSencilla').classList.add('activo');
+                rastroOnda = [];
+            } else {
+                document.getElementById('btnCompleta').classList.add('activo');
+            }
+        }
+
+        function animar() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const amplitud = 80;
+            const frecuencia = 0.04;
+            const centroY = canvas.height / 2;
+
+            const centroX = modoActual === 'sencilla' ? canvas.width / 2 : 100;
+
+            let posY = centroY + Math.sin(tiempo * frecuencia) * amplitud;
+
+            if (modoActual === 'completa') {
+                rastroOnda.unshift(posY);
+
+                if (rastroOnda.length > canvas.width - 150) {
+                    rastroOnda.pop();
+                }
+
+                ctx.beginPath();
+                ctx.strokeStyle = '#e9d5ff';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                ctx.moveTo(centroX, centroY);
+                ctx.lineTo(canvas.width, centroY);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                ctx.beginPath();
+                ctx.strokeStyle = '#a78bfa';
+                ctx.lineWidth = 4;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+
+                for (let i = 0; i < rastroOnda.length; i++) {
+                    ctx.lineTo(centroX + i, rastroOnda[i]);
+                }
+                ctx.stroke();
+            }
+
+            ctx.beginPath();
+            ctx.strokeStyle = '#c4b5fd';
+            ctx.lineWidth = 3;
+            ctx.moveTo(centroX, 0);
+            ctx.lineTo(centroX, posY);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.fillStyle = '#7c3aed';
+            ctx.arc(centroX, posY, 22, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.arc(centroX - 6, posY - 6, 6, 0, Math.PI * 2);
+            ctx.fill();
+
+            tiempo += 1.2;
+
+            requestAnimationFrame(animar);
+        }
+
+        animar();
+    </script>
+</body>
+
+</html>

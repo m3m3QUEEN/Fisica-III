@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oscilación Simple - Edición Premium</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* 🌌 Reset y Fondo Aurora */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #0f172a; /* Azul muy oscuro */
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+            color: #f8fafc;
+        }
+
+        /* Efecto de luces de Aurora en el fondo */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: 
+                radial-gradient(circle at 40% 60%, rgba(139, 92, 246, 0.15), transparent 50%),
+                radial-gradient(circle at 70% 30%, rgba(59, 130, 246, 0.15), transparent 40%),
+                radial-gradient(circle at 20% 20%, rgba(16, 185, 129, 0.1), transparent 40%);
+            filter: blur(60px);
+            z-index: -1;
+            animation: auroraAnim 15s infinite alternate ease-in-out;
+        }
+
+        @keyframes auroraAnim {
+            0% { transform: rotate(0deg) scale(1); }
+            100% { transform: rotate(10deg) scale(1.1); }
+        }
+
+        /* 💎 Contenedor de Cristal (Glassmorphism) */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h2 {
+            font-weight: 600;
+            font-size: 1.8rem;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            background: linear-gradient(90deg, #a855f7, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+        }
+
+        /* 🖼️ El Lienzo */
+        canvas {
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 16px;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glass-panel">
+        <canvas id="lienzo" width="800" height="300"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('lienzo');
+        const ctx = canvas.getContext('2d');
+
+        // Parámetros físicos
+        let tiempo = 0;
+        const amplitud = 250;
+        const frecuencia = 2.5; 
+        const centroX = canvas.width / 2;
+        const centroY = canvas.height / 2;
+        const anchoBloque = 40;
+
+        function dibujarEntorno() {
+            // Línea central de equilibrio (punteada)
+            ctx.beginPath();
+            ctx.setLineDash([5, 8]);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+            ctx.lineWidth = 2;
+            ctx.moveTo(centroX, centroY - 80);
+            ctx.lineTo(centroX, centroY + 80);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Pared de anclaje a la izquierda
+            ctx.fillStyle = '#334155'; // Gris pizarra
+            ctx.beginPath();
+            ctx.roundRect(10, centroY - 60, 20, 120, 8);
+            ctx.fill();
+            ctx.strokeStyle = '#475569';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        function dibujarResorte(finX) {
+            ctx.beginPath();
+            ctx.strokeStyle = '#94a3b8'; // Gris claro metálico
+            ctx.lineWidth = 4;
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+            
+            const inicioX = 30; // Desde la pared
+            ctx.moveTo(inicioX, centroY);
+            
+            const numEspiras = 25;
+            const longitudResorte = finX - inicioX;
+            const espaciado = longitudResorte / numEspiras;
+            
+            for(let i = 0; i <= numEspiras; i++) {
+                const x = inicioX + i * espaciado;
+                // Alternar arriba y abajo
+                const y = centroY + (i === 0 || i === numEspiras ? 0 : (i % 2 === 0 ? 25 : -25));
+                ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+        }
+
+        function dibujarMasa(x) {
+            // Sombra de neón (Glow)
+            ctx.shadowColor = '#a855f7'; // Morado brillante
+            ctx.shadowBlur = 25;
+            
+            // Gradiente para darle volumen al bloque
+            const gradiente = ctx.createLinearGradient(x - anchoBloque/2, centroY - anchoBloque/2, x + anchoBloque/2, centroY + anchoBloque/2);
+            gradiente.addColorStop(0, '#c084fc'); // Claro arriba
+            gradiente.addColorStop(1, '#7e22ce'); // Oscuro abajo
+            
+            ctx.fillStyle = gradiente;
+            ctx.beginPath();
+            // Cuadrado con bordes redondeados
+            ctx.roundRect(x - anchoBloque/2, centroY - anchoBloque/2, anchoBloque, anchoBloque, 12);
+            ctx.fill();
+            
+            // Borde semitransparente para simular cristal
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // Apagar la sombra para que no afecte otros dibujos
+            ctx.shadowBlur = 0;
+        }
+
+        function animar() {
+            // Limpiar lienzo
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Dibujar fondo estático (pared y línea central)
+            dibujarEntorno();
+
+            // Calcular posición x(t)
+            const posicionX = centroX + amplitud * Math.sin(frecuencia * tiempo);
+
+            // Dibujar partes dinámicas
+            dibujarResorte(posicionX - anchoBloque/2); // El resorte se conecta al borde del bloque
+            dibujarMasa(posicionX);
+
+            // Avanzar el tiempo
+            tiempo += 0.016;
+
+            // Bucle infinito
+            requestAnimationFrame(animar);
+        }
+
+        // ¡Acción!
+        animar();
+    </script>
+</body>
+</html>
