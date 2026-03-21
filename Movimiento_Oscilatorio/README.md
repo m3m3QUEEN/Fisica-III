@@ -22,7 +22,7 @@ index.html
 
 Puedes abrir el cuaderno interactivo desde el siguiente enlace:
 
-🔗 [Abrir cuaderno virtual](https://m3m3queen.github.io/Fisica-III/index.html)
+🔗 [Abrir cuaderno virtual](https://m3m3queen.github.io/Fisica-III/Movimiento_Oscilatorio/index.html)
 
 ## Objetivo
 
