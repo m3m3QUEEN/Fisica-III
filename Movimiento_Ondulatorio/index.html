@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movimiento Ondulatorio - Cuaderno Interactivo</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;800&family=Permanent+Marker&display=swap');
+
+        :root {
+            /* Pastel Palette */
+            --bg-color: #fce4ec; /* Pastel pink background */
+            --notebook-bg: #fffbf0; /* Warm off-white for paper */
+            --primary: #b39ddb; /* Pastel purple */
+            --secondary: #81d4fa; /* Pastel blue */
+            --accent: #ffab91; /* Pastel orange/peach */
+            --text-main: #4a4a4a;
+            --text-heading: #5e35b1;
+            --line-color: #e0f7fa; /* Light cyan for notebook lines */
+            --nav-bg: rgba(255, 255, 255, 0.85);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #fce4ec, #e8eaf6);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Navbar & Dropdown Menu */
+        nav {
+            width: 100%;
+            background: var(--nav-bg);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            font-family: 'Permanent Marker', cursive;
+            font-size: 1.5rem;
+            color: var(--primary);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropbtn {
+            background-color: var(--secondary);
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 4px 6px rgba(129, 212, 250, 0.4);
+        }
+
+        .dropbtn:hover, .dropbtn:focus {
+            background-color: #4fc3f7;
+            transform: translateY(-2px);
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: #ffffff;
+            min-width: 220px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            z-index: 1;
+            margin-top: 10px;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .dropdown-content.show {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .dropdown-content a {
+            color: var(--text-main);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            border-bottom: 1px solid #f1f1f1;
+            font-weight: 600;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .dropdown-content a:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-content a:hover {
+            background-color: var(--bg-color);
+            color: var(--text-heading);
+        }
+
+        /* Notebook Container */
+        .notebook {
+            background: var(--notebook-bg);
+            width: 90%;
+            max-width: 900px;
+            margin-top: 100px;
+            margin-bottom: 50px;
+            border-radius: 8px 25px 25px 8px;
+            box-shadow: -10px 10px 20px rgba(0,0,0,0.1), inset 30px 0 20px -20px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Spiral binding effect */
+        .notebook::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 20px;
+            bottom: 0;
+            width: 2px;
+            background: #ffcdd2; /* Red margin line */
+            z-index: 2;
+        }
+
+        .holes {
+            position: absolute;
+            left: 5px;
+            top: 0;
+            bottom: 0;
+            width: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly;
+            z-index: 3;
+        }
+
+        .hole {
+            width: 12px;
+            height: 12px;
+            background-color: #fce4ec;
+            border-radius: 50%;
+            box-shadow: inset 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* Grid paper effect */
+        .page-content {
+            padding: 40px 40px 40px 60px;
+            min-height: 500px;
+            background-image: 
+                linear-gradient(var(--line-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--line-color) 1px, transparent 1px);
+            background-size: 20px 20px;
+            position: relative;
+        }
+
+        /* Sections */
+        .section {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Typography */
+        h1 {
+            font-family: 'Permanent Marker', cursive;
+            font-size: 3.5rem;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 20px;
+            transform: rotate(-2deg);
+            text-shadow: 2px 2px 0px rgba(179, 157, 219, 0.3);
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: var(--text-heading);
+            margin-bottom: 15px;
+            border-bottom: 3px dashed var(--accent);
+            display: inline-block;
+            padding-bottom: 5px;
+        }
+
+        p {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .highlight-box {
+            background-color: rgba(129, 212, 250, 0.15);
+            border-left: 5px solid var(--secondary);
+            padding: 15px 20px;
+            border-radius: 0 10px 10px 0;
+            margin: 20px 0;
+            font-style: italic;
+        }
+
+        .formula-box {
+            background-color: #dcedc8; /* Pastel lime green like the image sticky notes */
+            box-shadow: 2px 4px 6px rgba(0,0,0,0.1);
+            padding: 10px 20px;
+            display: inline-block;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 1.3rem;
+            font-style: italic;
+            border-radius: 4px;
+            margin: 10px 0;
+            position: relative;
+        }
+
+        /* Portada styles */
+        .portada {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            text-align: center;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 40px;
+        }
+
+        .start-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 30px;
+            cursor: pointer;
+            font-family: 'Nunito', sans-serif;
+            font-weight: bold;
+            box-shadow: 0 6px 12px rgba(179, 157, 219, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .start-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 15px rgba(179, 157, 219, 0.6);
+            background-color: #9575cd;
+        }
+
+        /* Simulations Canvas */
+        .sim-container {
+            width: 100%;
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+            margin: 30px 0;
+            border: 2px solid var(--secondary);
+            position: relative;
+        }
+
+        .sim-title {
+            text-align: center;
+            font-weight: bold;
+            color: var(--secondary);
+            margin-bottom: 10px;
+            font-family: 'Permanent Marker', cursive;
+            letter-spacing: 1px;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            background: #fdfdfd;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .sim-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .sim-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .sim-btn:hover {
+            background: #ff8a65;
+        }
+
+        /* Decorative elements */
+        .sticker {
+            position: absolute;
+            opacity: 0.8;
+            pointer-events: none;
+        }
+
+        /* --- Floating Formula Panel --- */
+        .fab-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(179, 157, 219, 0.6);
+            z-index: 2000;
+            transition: transform 0.3s, background-color 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+        }
+
+        .fab-btn:hover {
+            transform: scale(1.1);
+            background-color: #9575cd;
+        }
+
+        .formula-panel {
+            position: fixed;
+            bottom: 170px;
+            right: 30px;
+            width: 350px;
+            max-height: 500px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            z-index: 1999;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 2px solid var(--primary);
+            
+            /* Hidden by default */
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .formula-panel.open {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .panel-header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-header h3 {
+            font-size: 1.2rem;
+            margin: 0;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .panel-body {
+            padding: 10px;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+
+        .accordion-item {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            overflow: hidden;
+        }
+
+        .accordion-header {
+            width: 100%;
+            background-color: #f9f9f9;
+            border: none;
+            padding: 12px 15px;
+            text-align: left;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-heading);
+            display: flex;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+
+        .accordion-header:hover {
+            background-color: #f1f1f1;
+        }
+
+        .accordion-header .icon {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        .accordion-content {
+            background-color: white;
+            padding: 0 15px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+        }
+
+        .accordion-content p {
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .accordion-item.active .accordion-content {
+            padding: 15px;
+            max-height: 500px; /* Arbitrary large height to allow expansion */
+        }
+
+        .accordion-item.active .accordion-header {
+            background-color: #e8eaf6; /* Light pastel purple bg */
+        }
+
+        /* --- Calculator Panel --- */
+        .calc-panel {
+            position: fixed;
+            bottom: 170px;
+            right: 30px;
+            width: 300px;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            z-index: 1999;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 2px solid var(--secondary);
+            
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .calc-panel.open {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .calc-body {
+            padding: 15px;
+            background-color: #e0f7fa; /* Pastel blue bg for calculator */
+        }
+
+        .calc-display {
+            width: 100%;
+            height: 50px;
+            background: #fff;
+            border: 1px solid #b2ebf2;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            text-align: right;
+            padding: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            color: #333;
+        }
+
+        .calc-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .calc-btn {
+            border: none;
+            border-radius: 8px;
+            padding: 12px 0;
+            font-size: 1.1rem;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.1s, filter 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .calc-btn:active {
+            transform: scale(0.95);
+        }
+
+        .calc-btn:hover {
+            filter: brightness(1.1);
+        }
+
+        .num-btn { background-color: #ffffff; color: #4a4a4a; }
+        .op-btn { background-color: #ffab91; color: white; } /* Accent */
+        .fn-btn { background-color: #b39ddb; color: white; } /* Primary */
+        .eq-btn { background-color: #4dd0e1; color: white; } /* Secondary darker */
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .notebook { width: 95%; margin-top: 80px; }
+            .page-content { padding: 30px 20px 30px 40px; }
+            h1 { font-size: 2.5rem; }
+            nav { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sticky Navbar -->
+    <nav>
+        <div class="nav-logo">Física III</div>
+        <div class="dropdown">
+            <button onclick="toggleMenu()" class="dropbtn">Menú 📖</button>
+            <div id="myDropdown" class="dropdown-content">
+                <a href="#" onclick="showSection('portada')">Portada</a>
+                <a href="#" onclick="showSection('concepto')">1. Concepto Básico</a>
+                <a href="#" onclick="showSection('energia')">2. Propagación de Energía</a>
+                <a href="#" onclick="showSection('clasificacion')">3. Clasificación de Ondas</a>
+                <a href="#" onclick="showSection('naturaleza')">4. Mecánicas y Electromagnéticas</a>
+                <a href="#" onclick="showSection('matematica')">5. Descripción Matemática</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Notebook -->
+    <div class="notebook">
+        <!-- Notebook binding holes -->
+        <div class="holes" id="holes-container">
+            <!-- Emptied by JS, filled dynamically -->
+        </div>
+
+        <div class="page-content">
+            
+            <!-- PORTADA -->
+            <div id="portada" class="section active portada">
+                <h1>Movimiento<br>Ondulatorio</h1>
+                <div class="subtitle">Cuaderno Interactivo y Visual</div>
+
+                <div style="margin-bottom: 35px; color: var(--text-heading); font-size: 1.1rem; text-align: center; background-color: rgba(255,171,145, 0.15); padding: 15px 30px; border-radius: 12px; border: 1px dashed var(--accent);">
+                    <strong>Autores:</strong><br>
+                    <span style="color: var(--text-main); font-weight: 600;">Andrés Jaramillo &middot; Andrea Zapata &middot; Víctor Gonzales &middot; Sergio Carmona</span>
+                </div>
+                
+                <div class="sim-container" style="max-width: 400px; margin: 0 auto 40px auto; border-color: var(--primary);">
+                    <div class="sim-title" style="color: var(--primary);">Interacción con el agua (Haz Clic)</div>
+                    <canvas id="coverCanvas" width="350" height="200"></canvas>
+                </div>
+
+                <button class="start-btn" onclick="showSection('concepto')">Comenzar a Aprender</button>
+            </div>
+
+            <!-- SECCIÓN 1: Concepto -->
+            <div id="concepto" class="section">
+                <h2>¿Qué es el Movimiento Ondulatorio?</h2>
+                <p>
+                    Si en un punto de un medio material cualquiera (sólido, líquido o gas) se produce una perturbación que desplaza de su posición de equilibrio la partícula situada en el mismo, como cuando se deja caer un cuerpo en el agua, la perturbación no permanece en general localizada en el lugar donde se produjo. Al cabo de un tiempo más o menos largo se va transmitiendo a las partículas circundantes.
+                </p>
+                <div class="highlight-box">
+                    Este proceso recibe el nombre de <strong>propagación de una perturbación</strong>. El lugar inicial donde se produce la perturbación se denomina <strong>foco</strong>.
+                </div>
+                <p>
+                    Si la perturbación se propaga en una dirección determinada, como el caso de una pulsación en una cuerda tensa, avanza en general una gran distancia sin experimentar una disminución sensible en su intensidad (sin amortiguamiento). Sin embargo, si la perturbación se propaga en una superficie o en el espacio (como el sonido), la intensidad disminuye rápidamente al aumentar la distancia al foco.
+                </p>
+                <div class="sim-container">
+                    <div class="sim-title">Simulación: Propagación desde un foco</div>
+                    <canvas id="propagacionCanvas" width="600" height="250"></canvas>
+                    <p style="text-align:center; font-size:0.9rem; color:gray; margin-top:5px;">Observa cómo la perturbación nace del foco (punto rojo) y se propaga.</p>
+                </div>
+                <div style="text-align: right; margin-top: 30px;">
+                    <button class="start-btn" onclick="showSection('energia')">Siguiente ➔</button>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 2: Energía vs Partículas -->
+            <div id="energia" class="section">
+                <h2>Lo que se propaga es la Energía</h2>
+                <p>
+                    Debe tenerse muy presente que en la propagación de una perturbación <strong>no son las partículas del medio las que se propagan desplazándose de un lugar a otro</strong>.
+                </p>
+                <div class="highlight-box" style="border-left-color: var(--accent); background-color: rgba(255, 171, 145, 0.15);">
+                    Lo único que se propaga es la <strong>energía</strong> del foco de vibración, conservándose las partículas en sus posiciones medias.
+                </div>
+                
+                <div class="sim-container" style="border-color: var(--accent);">
+                    <div class="sim-title" style="color: var(--accent);">Simulación: Partículas vs Energía</div>
+                    <canvas id="energiaCanvas" width="600" height="200"></canvas>
+                    <div class="sim-controls">
+                        <button class="sim-btn" id="btn-play-energia">Pausar/Reanudar</button>
+                    </div>
+                    <p style="text-align:center; font-size:0.9rem; color:gray; margin-top:5px;">Sigue una partícula azul específica: solo sube y baja, no avanza.</p>
+                </div>
+                <div style="text-align: right; margin-top: 30px;">
+                    <button class="start-btn" onclick="showSection('clasificacion')">Siguiente ➔</button>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 3: Clasificación / Transversales y Longitudinales -->
+            <div id="clasificacion" class="section">
+                <h2>Clasificación de las Ondas</h2>
+                <p>
+                    Las ondas se pueden clasificar de acuerdo a dos criterios: el primero es teniendo en cuenta la dirección en que vibran las partículas y el otro es en función a la naturaleza del medio de propagación.
+                </p>
+
+                <h3 style="color: var(--primary); margin-top: 20px;">Ondas Transversales</h3>
+                <p>
+                    Una onda es transversal si las partículas del medio donde se propagan las ondas vibran <strong>perpendicularmente</strong> a la dirección de propagación de la onda.
+                </p>
+                <div class="sim-container">
+                    <div class="sim-title">Onda Transversal (Cuerda)</div>
+                    <canvas id="transversalCanvas" width="600" height="150"></canvas>
+                </div>
+
+                <h3 style="color: var(--primary); margin-top: 30px;">Ondas Longitudinales</h3>
+                <p>
+                    Una onda es longitudinal si las partículas del medio donde se propagan las ondas vibran <strong>paralelamente</strong> a la dirección de propagación de la onda.
+                </p>
+                <div class="sim-container">
+                    <div class="sim-title">Onda Longitudinal (Resorte / Sonido)</div>
+                    <canvas id="longitudinalCanvas" width="600" height="150"></canvas>
+                </div>
+                <div style="text-align: right; margin-top: 30px;">
+                    <button class="start-btn" onclick="showSection('matematica')">Siguiente ➔</button>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 5: Descripción Matemática -->
+            <div id="matematica" class="section">
+                <h2>Descripción Matemática de la Propagación</h2>
+                <p>
+                    Imaginemos una perturbación que viaja en la dirección positiva de <em>x</em> con una velocidad constante <em>v</em>. La naturaleza específica de la perturbación no es por ahora importante. Podría ser el desplazamiento vertical de una cuerda, o la magnitud de un campo eléctrico o magnético.
+                </p>
+                <p>
+                    Si <strong>ψ</strong> (psi) representa la magnitud del campo que se propaga como una onda, como la perturbación está en movimiento, debe ser una función tanto de la posición como del tiempo y por tanto puede escribirse como:
+                </p>
+                <div class="formula-box">
+                    ψ = f(x,t)
+                </div>
+                <p>
+                    La forma de la perturbación en cualquier instante, digamos <em>t = 0</em>, se puede encontrar manteniendo el tiempo constante en ese valor. En este caso:
+                </p>
+                <div class="formula-box">
+                    f(x,t)|<sub>t=0</sub> = f(x,0) = f(x)
+                </div>
+                <p>
+                    Representa la forma o perfil de la onda en ese momento. El proceso es análogo a tomar una "fotografía" del pulso que va viajando. Por el momento nos limitaremos a una onda que no cambia su forma mientras avanza a través del espacio.
+                </p>
+                <div class="sim-container" style="border-color: #aed581;">
+                    <div class="sim-title" style="color: #689f38;">Simulación: Pulso de Onda y "Fotografía"</div>
+                    <canvas id="pulsoCanvas" width="600" height="150"></canvas>
+                    <div class="sim-controls">
+                        <button class="sim-btn" style="background-color:#8bc34a" id="btn-foto">Tomar Fotografía (t=0)</button>
+                    </div>
+                </div>
+
+                <h3 style="color: var(--primary); margin-top: 30px;">Propagación hacia la Izquierda y Derecha</h3>
+                <p>
+                    De manera general, la función que describe una perturbación que se propague hacia la <strong>derecha</strong> debe ser de la forma:
+                </p>
+                <div class="formula-box">
+                    ψ = f(x - v·t)
+                </div>
+                <p>
+                    Si la perturbación se propaga hacia la <strong>izquierda</strong>, la ecuación sería:
+                </p>
+                <div class="formula-box">
+                    ψ = f(x + v·t)
+                </div>
+                <p>
+                    De acuerdo con lo anterior, la ecuación de onda se satisface de manera más general por una función de onda que tenga la forma (superposición de dos ondas que viajan en direcciones opuestas a lo largo del eje X con la misma velocidad):
+                </p>
+                <div class="formula-box">
+                    ψ = c<sub>1</sub>·f<sub>1</sub>(x - v·t) + c<sub>2</sub>·f<sub>2</sub>(x + v·t)
+                </div>
+
+                <div class="sim-container" style="border-color: #ba68c8;">
+                    <div class="sim-title" style="color: #8e24aa;">Simulación: Dirección de Propagación</div>
+                    <canvas id="propDesplazamientoCanvas" width="600" height="150"></canvas>
+                    <div class="sim-controls">
+                        <button class="sim-btn" style="background-color:#ab47bc" id="btn-dir-right">Hacia la Derecha (x - vt)</button>
+                        <button class="sim-btn" style="background-color:#ab47bc" id="btn-dir-left">Hacia la Izquierda (x + vt)</button>
+                    </div>
+                </div>
+
+                <h3 style="color: var(--primary); margin-top: 30px;">Onda Progresiva</h3>
+                <p>
+                    Con el propósito de transformar la ecuación anterior en una onda progresiva que viaja con velocidad <em>v</em> en la dirección positiva de X, necesitamos simplemente reemplazar <em>x</em> por <em>(x - v·t)</em>, en cuyo caso:
+                </p>
+                <div class="formula-box">
+                    ψ(x,t) = A·sen k(x - v·t)
+                </div>
+                <div style="text-align: right; margin-top: 30px;">
+                    <button class="start-btn" onclick="showSection('naturaleza')">Siguiente ➔</button>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 4: Mecánicas y Electromagnéticas -->
+            <div id="naturaleza" class="section">
+                <h2>Naturaleza del Medio de Propagación</h2>
+
+                <h3 style="color: #4db6ac; margin-top: 20px;">Ondas Mecánicas</h3>
+                <p>
+                    Se llaman ondas mecánicas a aquellas ondas que <strong>necesitan un medio material</strong> para propagarse. Las ondas mecánicas no se propagan en el vacío. Por ejemplo: <em>el sonido</em>, las ondas en el agua, o las vibraciones de una cuerda.
+                </p>
+
+                <h3 style="color: #f06292; margin-top: 30px;">Ondas Electromagnéticas</h3>
+                <p>
+                    Se llaman ondas electromagnéticas a aquellas ondas que <strong>no necesitan un medio material</strong> para su propagación, por lo que se pueden propagar en el vacío. 
+                </p>
+                <div class="highlight-box" style="border-left-color: #f06292; background-color: rgba(240, 98, 146, 0.1);">
+                    Pertenecen a esta clase de ondas: los rayos X, la radiación ultravioleta, la luz visible, la radiación infrarroja, las microondas y las ondas de radio y televisión.
+                </div>
+                
+                <div style="text-align: center; margin-top: 40px;">
+                    <button class="start-btn" style="background-color: var(--secondary);" onclick="showSection('portada')">Volver al Inicio</button>
+                    <p style="margin-top:20px; font-size: 0.9rem; color: #888;">¡Felicidades por completar el cuaderno interactivo!</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Calculator (Floating) -->
+    <button class="fab-btn" id="fab-calc" onclick="toggleCalcPanel()" style="bottom: 100px; background-color: var(--secondary); font-style: normal; font-family: 'Segoe UI Emoji', sans-serif;">
+        🖩
+    </button>
+
+    <!-- Formula Panel (Floating) -->
+    <button class="fab-btn" id="fab-formula" onclick="toggleFormulaPanel()">
+        ∑
+    </button>
+
+    <div class="calc-panel" id="calcPanel">
+        <div class="panel-header" style="background-color: var(--secondary);">
+            <h3>Calculadora</h3>
+            <button class="close-btn" onclick="toggleCalcPanel()">×</button>
+        </div>
+        <div class="calc-body">
+            <input type="text" class="calc-display" id="calcDisplay" disabled>
+            <div class="calc-grid">
+                <button class="calc-btn fn-btn" onclick="appendCalc('sen(')">sen</button>
+                <button class="calc-btn fn-btn" onclick="appendCalc('cos(')">cos</button>
+                <button class="calc-btn fn-btn" onclick="appendCalc('tan(')">tan</button>
+                <button class="calc-btn op-btn" style="background-color: #ef5350;" onclick="clearCalc()">C</button>
+                
+                <button class="calc-btn fn-btn" onclick="appendCalc('(')">(</button>
+                <button class="calc-btn fn-btn" onclick="appendCalc(')')">)</button>
+                <button class="calc-btn fn-btn" onclick="appendCalc('√(')">√</button>
+                <button class="calc-btn op-btn" onclick="appendCalc('÷')">÷</button>
+                
+                <button class="calc-btn num-btn" onclick="appendCalc('7')">7</button>
+                <button class="calc-btn num-btn" onclick="appendCalc('8')">8</button>
+                <button class="calc-btn num-btn" onclick="appendCalc('9')">9</button>
+                <button class="calc-btn op-btn" onclick="appendCalc('×')">×</button>
+                
+                <button class="calc-btn num-btn" onclick="appendCalc('4')">4</button>
+                <button class="calc-btn num-btn" onclick="appendCalc('5')">5</button>
+                <button class="calc-btn num-btn" onclick="appendCalc('6')">6</button>
+                <button class="calc-btn op-btn" onclick="appendCalc('-')">-</button>
+                
+                <button class="calc-btn num-btn" onclick="appendCalc('1')">1</button>
+                <button class="calc-btn num-btn" onclick="appendCalc('2')">2</button>
+                <button class="calc-btn num-btn" onclick="appendCalc('3')">3</button>
+                <button class="calc-btn op-btn" onclick="appendCalc('+')">+</button>
+                
+                <button class="calc-btn fn-btn" onclick="appendCalc('π')">π</button>
+                <button class="calc-btn num-btn" onclick="appendCalc('0')">0</button>
+                <button class="calc-btn num-btn" onclick="appendCalc('.')">.</button>
+                <button class="calc-btn eq-btn" onclick="calculate()">=</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="formula-panel" id="formulaPanel">
+        <div class="panel-header">
+            <h3>Fórmulas Clave</h3>
+            <button class="close-btn" onclick="toggleFormulaPanel()">×</button>
+        </div>
+        <div class="panel-body">
+            
+            <!-- Formula 1 -->
+            <div class="accordion-item">
+                <button class="accordion-header" onclick="toggleAccordion(this)">
+                    <span class="icon">🌊</span> Onda Progresiva
+                </button>
+                <div class="accordion-content">
+                    <div class="formula-box" style="margin: 10px 0;">
+                        ψ(x,t) = A·sen k(x ± v·t)
+                    </div>
+                    <p><strong>¿Qué es?:</strong> Ecuación general de la función de onda.</p>
+                    <p><strong>Uso:</strong> Describe el desplazamiento transversal <em>ψ</em> de una partícula en la posición <em>x</em> y en el instante <em>t</em>.</p>
+                    <p><strong>Ejemplo:</strong> Si una onda tiene amplitud A=0.5m, k=2 rad/m y viaja a v=3 m/s hacia la derecha, su ecuación es <code>ψ(x,t) = 0.5·sen 2(x - 3t)</code>.</p>
+                </div>
+            </div>
+
+            <!-- Formula 2 -->
+            <div class="accordion-item">
+                <button class="accordion-header" onclick="toggleAccordion(this)">
+                    <span class="icon">🚀</span> Velocidad (v)
+                </button>
+                <div class="accordion-content">
+                    <div class="formula-box" style="margin: 10px 0;">
+                        v = λ · f
+                    </div>
+                    <p><strong>¿Qué es?:</strong> Rapidez de propagación.</p>
+                    <p><strong>Uso:</strong> Calcula la velocidad de la onda en el medio, relacionando su longitud de onda (λ) y su frecuencia (f).</p>
+                    <p><strong>Ejemplo:</strong> Una onda con λ=0.5m y f=680Hz viaja con una velocidad de <code>v = 0.5 · 680 = 340 m/s</code>.</p>
+                </div>
+            </div>
+
+            <!-- Formula 3 -->
+            <div class="accordion-item">
+                <button class="accordion-header" onclick="toggleAccordion(this)">
+                    <span class="icon">📏</span> Número de Onda (k)
+                </button>
+                <div class="accordion-content">
+                    <div class="formula-box" style="margin: 10px 0;">
+                        k = 2π / λ
+                    </div>
+                    <p><strong>¿Qué es?:</strong> Constante de fase por unidad de longitud.</p>
+                    <p><strong>Uso:</strong> Representa la repetición espacial de la onda matemática.</p>
+                    <p><strong>Ejemplo:</strong> Si una onda tiene longitud λ = 3.14m (aprox π), su número de onda es <code>k = 2π / π = 2 rad/m</code>.</p>
+                </div>
+            </div>
+
+            <!-- Formula 4 -->
+            <div class="accordion-item">
+                <button class="accordion-header" onclick="toggleAccordion(this)">
+                    <span class="icon">⏱️</span> Frec. Angular (ω)
+                </button>
+                <div class="accordion-content">
+                    <div class="formula-box" style="margin: 10px 0;">
+                        ω = 2π · f = 2π / T
+                    </div>
+                    <p><strong>¿Qué es?:</strong> Velocidad de cambio de fase.</p>
+                    <p><strong>Uso:</strong> Indica el número de radianes barridos por unidad de tiempo.</p>
+                    <p><strong>Ejemplo:</strong> Si una masa osciladora completa un ciclo cada 2s (Periodo T=2s), <code>ω = 2π / 2 = 3.14 rad/s</code>.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script>
+        // Draw binding holes dynamically
+        const holesContainer = document.getElementById('holes-container');
+        for (let i = 0; i < 20; i++) {
+            const hole = document.createElement('div');
+            hole.className = 'hole';
+            holesContainer.appendChild(hole);
+        }
+
+        // --- Floating Formula Panel Logic ---
+        function toggleFormulaPanel() {
+            document.getElementById('formulaPanel').classList.toggle('open');
+            // Close the other panel if open
+            if(document.getElementById('calcPanel').classList.contains('open')) {
+                document.getElementById('calcPanel').classList.remove('open');
+            }
+        }
+
+        // --- Floating Calculator Logic ---
+        function toggleCalcPanel() {
+            document.getElementById('calcPanel').classList.toggle('open');
+            // Close the other panel if open
+            if(document.getElementById('formulaPanel').classList.contains('open')) {
+                document.getElementById('formulaPanel').classList.remove('open');
+            }
+        }
+
+        // --- Scientific Calculator Logic ---
+        const calcDisplay = document.getElementById('calcDisplay');
+        let currentCalc = "";
+
+        // Insert string value natively into calc input model
+        function appendCalc(val) {
+            currentCalc += val;
+            calcDisplay.value = currentCalc;
+        }
+
+        function clearCalc() {
+            currentCalc = "";
+            calcDisplay.value = "";
+        }
+
+        function calculate() {
+            try {
+                // Replacing visual characters with mathematical JS syntax
+                let toEval = currentCalc
+                    .replace(/sen\(/g, 'Math.sin(')
+                    .replace(/cos\(/g, 'Math.cos(')
+                    .replace(/tan\(/g, 'Math.tan(')
+                    .replace(/√\(/g, 'Math.sqrt(')
+                    .replace(/π/g, 'Math.PI')
+                    .replace(/×/g, '*')
+                    .replace(/÷/g, '/');
+                
+                let result = eval(toEval);
+                
+                if (result === undefined || isNaN(result)) throw new Error("Invalid");
+
+                // If float, round to at most 4 digits, otherwise keep integer
+                if(result % 1 !== 0) {
+                    result = parseFloat(result.toFixed(4));
+                }
+
+                calcDisplay.value = result;
+                currentCalc = result.toString();
+            } catch (err) {
+                calcDisplay.value = "Error";
+                currentCalc = ""; // Reset internal string on error so next tap starts over
+            }
+        }
+
+        // --- Accordion Logic ---
+        function toggleAccordion(btn) {
+            const item = btn.parentElement;
+            // Close all other items to keep it clean and minimal
+            const allItems = document.querySelectorAll('.accordion-item');
+            allItems.forEach(i => {
+                if (i !== item) i.classList.remove('active');
+            });
+            // Toggle the clicked item
+            item.classList.toggle('active');
+        }
+
+        // Dropdown Menu Logic
+        function toggleMenu() {
+            document.getElementById("myDropdown").classList.toggle("show");
+        }
+
+        // Close the dropdown if the user clicks outside of it
+        window.onclick = function(event) {
+            if (!event.target.matches('.dropbtn')) {
+                var dropdowns = document.getElementsByClassName("dropdown-content");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+
+        // Section Navigation Logic
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(sec => sec.classList.remove('active'));
+            
+            // Show requested section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Re-trigger/resize canvases if they are within this section
+            window.dispatchEvent(new Event('resize'));
+        }
+
+        // === SIMULATIONS LOGIC ===
+
+        // 1. Cover Ripple (Agua)
+        const coverK = document.getElementById('coverCanvas');
+        const ctxCover = coverK.getContext('2d');
+        let ripples = [];
+
+        function animateCover() {
+            ctxCover.clearRect(0, 0, coverK.width, coverK.height);
+            
+            // Draw background waves
+            ctxCover.fillStyle = 'rgba(129, 212, 250, 0.1)';
+            ctxCover.fillRect(0, 0, coverK.width, coverK.height);
+            
+            for (let i = ripples.length - 1; i >= 0; i--) {
+                let r = ripples[i];
+                r.radius += r.speed;
+                r.alpha -= r.fade;
+                
+                if (r.alpha <= 0) {
+                    ripples.splice(i, 1);
+                    continue;
+                }
+                
+                ctxCover.beginPath();
+                ctxCover.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
+                ctxCover.strokeStyle = `rgba(129, 212, 250, ${r.alpha})`;
+                ctxCover.lineWidth = 2;
+                ctxCover.stroke();
+            }
+            requestAnimationFrame(animateCover);
+        }
+        
+        coverK.addEventListener('click', (e) => {
+            const rect = coverK.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            ripples.push({x: x, y: y, radius: 0, speed: 2, alpha: 1, fade: 0.02});
+            // Also generate a second ripple slightly delayed
+            setTimeout(() => {
+                ripples.push({x: x, y: y, radius: 0, speed: 2, alpha: 0.8, fade: 0.02});
+            }, 200);
+        });
+
+        // Trigger an initial ripple
+        setTimeout(() => ripples.push({x: coverK.width/2, y: coverK.height/2, radius: 0, speed: 1.5, alpha: 1, fade: 0.015}), 500);
+        animateCover();
+
+        // 2. Propagación desde un foco (Sección 1)
+        const propK = document.getElementById('propagacionCanvas');
+        const ctxProp = propK.getContext('2d');
+        let propTime = 0;
+        
+        function animatePropagacion() {
+            ctxProp.clearRect(0, 0, propK.width, propK.height);
+            let cx = propK.width / 2;
+            let cy = propK.height / 2;
+            
+            // Damping effect over distance
+            for (let r = propTime % 40; r < 300; r += 40) {
+                let opacity = Math.max(0, 1 - (r / 300));
+                ctxProp.beginPath();
+                ctxProp.arc(cx, cy, r, 0, Math.PI * 2);
+                ctxProp.strokeStyle = `rgba(179, 157, 219, ${opacity})`; // Pastel purple
+                ctxProp.lineWidth = 3;
+                ctxProp.stroke();
+            }
+            
+            // Foco
+            ctxProp.beginPath();
+            ctxProp.arc(cx, cy, 6, 0, Math.PI * 2);
+            ctxProp.fillStyle = '#ff5252'; // Red point
+            ctxProp.fill();
+            
+            propTime += 1;
+            requestAnimationFrame(animatePropagacion);
+        }
+        animatePropagacion();
+
+        // 3. Energía vs Partículas (Sección 2)
+        const energK = document.getElementById('energiaCanvas');
+        const ctxEnerg = energK.getContext('2d');
+        let timeGlobal = 0;
+        let pEnergia = true;
+        
+        document.getElementById('btn-play-energia').addEventListener('click', () => { pEnergia = !pEnergia; });
+        
+        function animateEnergia() {
+            ctxEnerg.clearRect(0, 0, energK.width, energK.height);
+            
+            // Draw axis
+            ctxEnerg.beginPath();
+            ctxEnerg.moveTo(0, energK.height/2);
+            ctxEnerg.lineTo(energK.width, energK.height/2);
+            ctxEnerg.strokeStyle = '#e0e0e0';
+            ctxEnerg.stroke();
+            
+            const A = 40;
+            const k = 0.05;
+            const w = 0.05;
+            
+            // Draw continuous wave
+            ctxEnerg.beginPath();
+            ctxEnerg.strokeStyle = 'rgba(255, 171, 145, 0.5)'; // Accent pastel
+            ctxEnerg.lineWidth = 3;
+            for (let x = 0; x < energK.width; x++) {
+                let y = energK.height/2 + A * Math.sin(k*x - w*timeGlobal);
+                if (x===0) ctxEnerg.moveTo(x, y);
+                else ctxEnerg.lineTo(x, y);
+            }
+            ctxEnerg.stroke();
+            
+            // Draw specific particles
+            for (let i = 20; i < energK.width; i+=40) {
+                let y = energK.height/2 + A * Math.sin(k*i - w*timeGlobal);
+                ctxEnerg.beginPath();
+                ctxEnerg.arc(i, y, 6, 0, Math.PI*2);
+                // Highlight one specific particle
+                if (i === 180) {
+                    ctxEnerg.fillStyle = '#1e88e5'; // Blue vivid
+                    // Draw vertical guide line
+                    ctxEnerg.beginPath();
+                    ctxEnerg.moveTo(i, energK.height/2 - 60);
+                    ctxEnerg.lineTo(i, energK.height/2 + 60);
+                    ctxEnerg.strokeStyle = 'rgba(30, 136, 229, 0.3)';
+                    ctxEnerg.setLineDash([5, 5]);
+                    ctxEnerg.stroke();
+                    ctxEnerg.setLineDash([]);
+                    ctxEnerg.beginPath();
+                    ctxEnerg.arc(i, y, 8, 0, Math.PI*2);
+                } else {
+                    ctxEnerg.fillStyle = '#bcaaa4';
+                }
+                ctxEnerg.fill();
+            }
+            
+            if (pEnergia) timeGlobal++;
+            requestAnimationFrame(animateEnergia);
+        }
+        animateEnergia();
+
+        // 4. Ondas Transversales y Longitudinales (Sección 3)
+        const transK = document.getElementById('transversalCanvas');
+        const ctxTrans = transK.getContext('2d');
+        const longK = document.getElementById('longitudinalCanvas');
+        const ctxLong = longK.getContext('2d');
+        
+        let tClasif = 0;
+        
+        function animateClasificacion() {
+            // Transversal
+            ctxTrans.clearRect(0, 0, transK.width, transK.height);
+            const wT = 0.05, kT = 0.05, AT = 40;
+            
+            ctxTrans.beginPath();
+            ctxTrans.strokeStyle = '#9575cd'; // Deep purple pastel
+            ctxTrans.lineWidth = 2;
+            for (let x = 0; x < transK.width; x++) {
+                let y = transK.height/2 + AT * Math.sin(kT*x - wT*tClasif);
+                if (x === 0) ctxTrans.moveTo(x, y);
+                else ctxTrans.lineTo(x, y);
+            }
+            ctxTrans.stroke();
+            
+            // Partículas transversales
+            for (let i = 20; i < transK.width; i+=40) {
+                let y = transK.height/2 + AT * Math.sin(kT*i - wT*tClasif);
+                ctxTrans.beginPath();
+                ctxTrans.arc(i, y, 5, 0, Math.PI*2);
+                ctxTrans.fillStyle = '#5e35b1';
+                ctxTrans.fill();
+            }
+
+            // Longitudinal
+            ctxLong.clearRect(0, 0, longK.width, longK.height);
+            const wL = 0.05, kL = 0.05, AL = 20;
+            const startY = longK.height/2;
+
+            for (let i = 20; i < longK.width - 20; i+=15) {
+                // Posición x oscila
+                let dx = AL * Math.sin(kL*i - wL*tClasif);
+                let x = i + dx;
+                
+                // Draw vertical line for Spring-like appearance
+                ctxLong.beginPath();
+                ctxLong.moveTo(x, startY - 30);
+                ctxLong.lineTo(x, startY + 30);
+                ctxLong.strokeStyle = '#4fc3f7';
+                ctxLong.lineWidth = 2;
+                ctxLong.stroke();
+                
+                ctxLong.beginPath();
+                ctxLong.arc(x, startY, 4, 0, Math.PI*2);
+                ctxLong.fillStyle = '#0288d1';
+                ctxLong.fill();
+            }
+
+            tClasif++;
+            requestAnimationFrame(animateClasificacion);
+        }
+        animateClasificacion();
+
+        // 5. Pulsos y Funciones Matemáticas (Sección 5)
+        
+        // --- 5a. Pulso y Fotografía ---
+        const pulsoK = document.getElementById('pulsoCanvas');
+        const ctxPulso = pulsoK.getContext('2d');
+        let tPulso = 0;
+        let pFoto = false;
+        let fotoTime = 0;
+        
+        document.getElementById('btn-foto').addEventListener('click', () => { 
+            pFoto = !pFoto; 
+            if(pFoto) {
+                fotoTime = tPulso;
+                document.getElementById('btn-foto').innerText = "Reanudar Tiempo";
+            } else {
+                document.getElementById('btn-foto').innerText = "Tomar Fotografía (t=0)";
+                // Update specific animation time to avoid jumps
+                tPulso = fotoTime; 
+            }
+        });
+
+        // Función del pulso (Campana de Gauss simplificada para visualización)
+        function calcPulso(x, t, v) {
+            let u = (x - v*t) / 30; // 30 is width factor 
+            return 60 * Math.exp(-(u*u));
+        }
+
+        function animatePulso() {
+            ctxPulso.clearRect(0, 0, pulsoK.width, pulsoK.height);
+            
+            // Draw axis
+            ctxPulso.beginPath();
+            ctxPulso.moveTo(0, pulsoK.height/2 + 20);
+            ctxPulso.lineTo(pulsoK.width, pulsoK.height/2 + 20);
+            ctxPulso.strokeStyle = '#e0e0e0';
+            ctxPulso.stroke();
+
+            let currentTime = pFoto ? fotoTime : tPulso;
+            const v = 2; // velocidad
+
+            // Draw current wave function
+            ctxPulso.beginPath();
+            ctxPulso.strokeStyle = '#689f38'; // pastel green
+            ctxPulso.lineWidth = 3;
+            for(let x=0; x<pulsoK.width; x++){
+                let y = pulsoK.height/2 + 20 - calcPulso(x - 50, currentTime, v);
+                if(x===0) ctxPulso.moveTo(x, y);
+                else ctxPulso.lineTo(x, y);
+            }
+            ctxPulso.stroke();
+
+            // Time indicator
+            ctxPulso.fillStyle = '#333';
+            ctxPulso.font = "14px Arial";
+            ctxPulso.fillText(`f(x, t)  |  t = ${(currentTime/60).toFixed(1)}s`, 20, 30);
+            if(pFoto) {
+                ctxPulso.fillStyle = '#d32f2f';
+                ctxPulso.fillText(`FOTOGRAFÍA TOMADA`, 20, 50);
+            }
+
+            // Loop pulse smoothly
+            if(!pFoto) {
+                tPulso++;
+                if (50 + v*tPulso > pulsoK.width + 100) tPulso = -50; 
+            }
+            
+            requestAnimationFrame(animatePulso);
+        }
+        animatePulso();
+
+        // --- 5b. Propagación Izquierda/Derecha ---
+        const dirK = document.getElementById('propDesplazamientoCanvas');
+        const ctxDir = dirK.getContext('2d');
+        let tDir = 0;
+        let vDir = 2; // Positiva = Derecha, Negativa = Izquierda
+        
+        document.getElementById('btn-dir-right').addEventListener('click', () => { vDir = 2; tDir = 0; });
+        document.getElementById('btn-dir-left').addEventListener('click', () => { vDir = -2; tDir = 0; });
+
+        function animateDir() {
+            ctxDir.clearRect(0, 0, dirK.width, dirK.height);
+            
+            ctxDir.beginPath();
+            ctxDir.moveTo(0, dirK.height/2 + 20);
+            ctxDir.lineTo(dirK.width, dirK.height/2 + 20);
+            ctxDir.strokeStyle = '#e0e0e0';
+            ctxDir.stroke();
+
+            let originX = vDir > 0 ? 100 : dirK.width - 100;
+
+            ctxDir.beginPath();
+            ctxDir.strokeStyle = '#8e24aa'; // purple
+            ctxDir.lineWidth = 3;
+            for(let x=0; x<dirK.width; x++){
+                let y = dirK.height/2 + 20 - calcPulso(x - originX, tDir, vDir);
+                if(x===0) ctxDir.moveTo(x, y);
+                else ctxDir.lineTo(x, y);
+            }
+            ctxDir.stroke();
+            
+            ctxDir.fillStyle = '#333';
+            ctxDir.font = "14px Arial";
+            if (vDir > 0) {
+                ctxDir.fillText("ψ = f(x - v·t)", 20, 30);
+                ctxDir.fillText("→ Hacia la derecha", 20, 50);
+            } else {
+                ctxDir.fillText("ψ = f(x + v·t)", 20, 30);
+                ctxDir.fillText("← Hacia la izquierda", 20, 50);
+            }
+
+            tDir++;
+            if(originX + vDir*tDir > dirK.width + 100 || originX + vDir*tDir < -100) {
+                tDir = 0; // Restart animation loop
+            }
+
+            requestAnimationFrame(animateDir);
+        }
+        animateDir();
+
+    </script>
+</body>
+</html>
