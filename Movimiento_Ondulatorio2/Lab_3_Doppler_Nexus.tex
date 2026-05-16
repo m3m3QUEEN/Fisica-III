@@ -1,0 +1,111 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage[left=2.5cm,right=2.5cm,top=3cm,bottom=3cm]{geometry}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{tcolorbox}
+\usepackage{hyperref}
+
+% Configuración de colores para código
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+\title{\textbf{Guía de Laboratorio 3}\\ \Large Laboratorio Virtual: Doppler Nexus}
+\author{Andrés Jaramillo - Andrea Zapata - Víctor Gonzales - Sergio Carmona - Daniela Nieto}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Introducción}
+Este proyecto consiste en una simulación interactiva avanzada diseñada para explorar los principios fundamentales del Efecto Doppler. A través de un motor gráfico en 2D, se visualiza cómo la velocidad de una fuente sonora comprime o expande los frentes de onda, alterando la frecuencia percibida por un observador en reposo o en movimiento.
+
+\section{Fundamento Teórico}
+El efecto Doppler es el cambio aparente en la frecuencia de una onda causado por el movimiento relativo entre la fuente de la onda y su observador.
+
+\begin{tcolorbox}[colback=purple!5!white,colframe=purple!75!black,title=Ecuaciones del Efecto Doppler]
+\textbf{General:} 
+\[ f' = f \left( \frac{v \pm v_o}{v \mp v_s} \right) \]
+Donde:
+\begin{itemize}
+    \item $v$: Velocidad del sonido en el medio.
+    \item $v_o$: Velocidad del observador.
+    \item $v_s$: Velocidad de la fuente.
+\end{itemize}
+\end{tcolorbox}
+
+\section{Características de la Simulación}
+\begin{itemize}
+    \item \textbf{Propagación Dinámica:} Visualización de crestas de onda como círculos concéntricos.
+    \item \textbf{Número de Mach:} Simulación de regímenes subsónicos, sónicos ($M=1$) y supersónicos ($M>1$).
+    \item \textbf{Cono de Mach:} Formación de la onda de choque y explosión sónica (sonic boom).
+\end{itemize}
+
+\section{Algoritmo de Renderizado (Extracto)}
+\begin{lstlisting}[language=JavaScript]
+// Manejo de ondas en el canvas
+function renderLoop() {
+    ctx.clearRect(0, 0, width, height);
+    
+    // Nueva onda cada intervalo
+    if (ticks % interval === 0) {
+        ondas.push({ x: source.x, y: source.y, r: 0 });
+    }
+    
+    // Dibujo y actualizacion de radios
+    ondas.forEach((o, i) => {
+        o.r += speedSound;
+        ctx.beginPath();
+        ctx.arc(o.x, o.y, o.r, 0, 2 * Math.PI);
+        ctx.stroke();
+        
+        // Limpieza de memoria
+        if (o.r > maxRadius) ondas.splice(i, 1);
+    });
+    
+    requestAnimationFrame(renderLoop);
+}
+\end{lstlisting}
+
+\section{Análisis de Resultados}
+Al utilizar el simulador, se observa que:
+\begin{enumerate}
+    \item Cuando la fuente se acerca al observador, los frentes de onda se agrupan ($f' > f$).
+    \item Cuando la fuente se aleja, los frentes se distancian ($f' < f$).
+\end{enumerate}
+
+\begin{figure}[h]
+    \centering
+    % \includegraphics[width=0.8\textwidth]{screenshot_doppler.png}
+    \caption{Visualización del efecto Doppler en el simulador Nexus (Espacio para captura).}
+\end{figure}
+
+\end{document}

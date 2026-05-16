@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuaderno de Laboratorios - Física III</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #8b5cf6;
+            --secondary: #ec4899;
+            --accent: #06b6d4;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Outfit', sans-serif; background-color: var(--bg); color: var(--text); line-height: 1.6; overflow-x: hidden; }
+
+        /* Background Deco */
+        .deco-blob { position: fixed; width: 500px; height: 500px; border-radius: 50%; filter: blur(100px); z-index: -1; opacity: 0.15; }
+        .blob-1 { top: -100px; right: -100px; background: var(--primary); }
+        .blob-2 { bottom: -100px; left: -100px; background: var(--accent); }
+
+        header { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); padding: 20px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .logo { font-size: 1.5rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+        .authors { font-size: 0.85rem; color: var(--text-light); text-align: right; }
+
+        main { max-width: 1200px; margin: 40px auto; padding: 0 20px; display: grid; grid-template-columns: 300px 1fr; gap: 30px; }
+
+        /* Sidebar Navigation */
+        .sidebar { position: sticky; top: 100px; height: fit-content; background: var(--card-bg); padding: 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.05); }
+        .sidebar h3 { font-size: 1.1rem; margin-bottom: 20px; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px; }
+        .nav-btn { width: 100%; padding: 15px; margin-bottom: 10px; border: none; background: transparent; border-radius: 12px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: all 0.3s; font-family: inherit; font-size: 1rem; color: var(--text); text-align: left; }
+        .nav-btn:hover { background: rgba(139, 92, 246, 0.05); color: var(--primary); }
+        .nav-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3); }
+        .nav-btn .icon { font-size: 1.2rem; }
+
+        /* Content Area */
+        .content-card { background: var(--card-bg); border-radius: 24px; padding: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.05); min-height: 600px; animation: fadeIn 0.5s ease; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .lab-header { margin-bottom: 30px; }
+        .lab-title { font-size: 2.2rem; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+        .lab-badges { display: flex; gap: 10px; margin-bottom: 20px; }
+        .badge { padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; }
+        .badge-dif { background: rgba(139, 92, 246, 0.1); color: var(--primary); }
+        .badge-time { background: rgba(236, 72, 153, 0.1); color: var(--secondary); }
+
+        .section-title { font-size: 1.3rem; font-weight: 700; margin: 30px 0 15px; display: flex; align-items: center; gap: 10px; }
+        .section-title::after { content: ''; flex-grow: 1; height: 1px; background: linear-gradient(to right, #e2e8f0, transparent); }
+
+        .img-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 20px 0; }
+        .img-box { border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; cursor: pointer; transition: transform 0.3s; }
+        .img-box:hover { transform: scale(1.02); }
+        .img-box img { width: 100%; height: 200px; object-fit: cover; }
+        .img-label { padding: 10px; font-size: 0.85rem; background: white; text-align: center; color: var(--text-light); }
+
+        /* Code Block */
+        .code-container { position: relative; margin: 20px 0; }
+        .copy-btn { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: bold; transition: all 0.2s; z-index: 5; }
+        .copy-btn:hover { background: rgba(255,255,255,0.2); }
+        pre { background: #1e1e1e; color: #d4d4d4; padding: 20px; border-radius: 12px; font-family: 'Share Tech Mono', monospace; overflow-x: auto; font-size: 0.9rem; border: 1px solid #334155; }
+
+        .pines-box { background: #f1f5f9; padding: 20px; border-radius: 16px; border-left: 5px solid var(--primary); margin: 20px 0; }
+        .pines-box ul { list-style: none; padding-left: 5px; }
+        .pines-box li { margin-bottom: 8px; }
+
+        /* Fullscreen Image Overlay */
+        #imgOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 40px; cursor: zoom-out; }
+        #imgOverlay img { max-width: 100%; max-height: 100%; border-radius: 8px; box-shadow: 0 0 40px rgba(0,0,0,0.5); }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            main { grid-template-columns: 1fr; }
+            .sidebar { position: relative; top: 0; display: flex; overflow-x: auto; gap: 10px; padding: 10px; }
+            .nav-btn { white-space: nowrap; width: auto; }
+            .sidebar h3 { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="deco-blob blob-1"></div>
+    <div class="deco-blob blob-2"></div>
+
+    <header>
+        <div class="logo">🚀 Lab-Notes<span>Physics</span></div>
+        <div class="authors">
+            <strong>Andrés Jaramillo • Andrea Zapata • Víctor Gonzales</strong><br>
+            <strong>Sergio Carmona • Daniela Nieto</strong>
+        </div>
+    </header>
+
+    <main>
+        <aside class="sidebar">
+            <h3>Laboratorios</h3>
+            <button class="nav-btn active" onclick="loadLab(0, this)">
+                <span class="icon">🌐</span> ESP32 Web Server
+            </button>
+            <button class="nav-btn" onclick="loadLab(1, this)">
+                <span class="icon">🌡️</span> Sensor Temperatura
+            </button>
+            <button class="nav-btn" onclick="loadLab(2, this)">
+                <span class="icon">📏</span> Sensor Distancia
+            </button>
+        </aside>
+
+        <section id="content" class="content-card">
+            <!-- Content will be injected here -->
+        </section>
+    </main>
+
+    <div id="imgOverlay" onclick="this.style.display='none'">
+        <img id="overlayImg" src="" alt="">
+    </div>
+
+    <script>
+        const labsData = [
+            {
+                title: "Servidor Web IoT con ESP32",
+                difficulty: "Avanzado",
+                time: "4 horas",
+                intro: "Transforma tu ESP32 en un poderoso servidor web local para el Internet de las Cosas (IoT). Permite monitorear voltajes desde un potenciómetro y controlar un LED físico de forma inalámbrica a través de una red WiFi.",
+                materiales: [
+                    "Módulo ESP32 DevKit V1",
+                    "Potenciómetro de 10kΩ",
+                    "LED (Cualquier color)",
+                    "Resistencia de 220Ω o 330Ω",
+                    "Protoboard y Cables Jumper",
+                    "Cable Micro-USB de datos"
+                ],
+                pines: [
+                    "<strong>Potenciómetro:</strong> Extremo 1 a 3.3V, Extremo 2 a GND, Central a GPIO34.",
+                    "<strong>LED:</strong> GPIO4 al Ánodo (pata larga); Cátodo a GND mediante resistencia."
+                ],
+                diagram: "circuito.jpeg",
+                photos: [
+                    { src: "foto1.jpeg", label: "Vista Lateral" },
+                    { src: "foto2.jpeg", label: "Conexión LED" },
+                    { src: "foto3.jpeg", label: "Potenciómetro" }
+                ],
+                code: `#include <WiFi.h>
+#include <WebServer.h>
+
+const char* miSSID     = "Tu_Red_WiFi";       
+const char* miPASSWORD = "Tu_Contraseña";     
+
+const int pinPot = 34; 
+const int pinLED = 4;            
+
+WebServer servidor(80);
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(pinLED, OUTPUT);
+  WiFi.begin(miSSID, miPASSWORD);
+  while (WiFi.status() != WL_CONNECTED) { delay(500); Serial.print("."); }
+  Serial.println("\\nWiFi Conectado. IP: " + WiFi.localIP().toString());
+  
+  servidor.on("/datos", []() {
+    float v = (analogRead(pinPot) * 3.3) / 4095.0;
+    servidor.send(200, "application/json", "{\\"voltaje\\": " + String(v, 2) + "}");
+  });
+  
+  servidor.on("/led", []() {
+    digitalWrite(pinLED, !digitalRead(pinLED));
+    servidor.send(200, "text/plain", "OK");
+  });
+
+  servidor.begin();
+}
+
+void loop() { servidor.handleClient(); }`,
+                pasos: [
+                    "<strong>1. Preparación del Software:</strong> Descarga Arduino IDE desde <a href='https://www.arduino.cc/en/software' target='_blank'>arduino.cc</a>. Instala el soporte para ESP32 en <em>Archivo > Preferencias > Gestor de URLs Adicionales</em>.",
+                    "<strong>2. Ensamblaje:</strong> Inserta el ESP32 en la protoboard. Conecta el potenciómetro y el LED siguiendo el esquema de pines.",
+                    "<strong>3. Configuración del Código:</strong> Cambia 'Tu_Red_WiFi' y 'Tu_Contraseña' por los datos de tu router.",
+                    "<strong>4. Carga:</strong> Conecta el ESP32 a la PC. En Arduino IDE selecciona 'DOIT ESP32 DEVKIT V1'. Presiona 'Subir'.",
+                    "<strong>5. Verificación:</strong> Abre el Monitor Serie (115200 baudios) y copia la dirección IP que aparezca."
+                ],
+                fallas: [
+                    { falla: "¿El ESP32 no se conecta al WiFi?", solucion: "Verifica que tu red sea de 2.4GHz (el ESP32 no soporta 5GHz) y que las credenciales sean correctas." },
+                    { falla: "¿Error de compilación o carga?", solucion: "Asegúrate de tener instaladas las placas ESP32 y que el cable USB sea de datos, no solo de carga." },
+                    { falla: "¿No se enciende el LED?", solucion: "Revisa la polaridad (pata larga a GPIO4) y asegúrate de que el cable de tierra (GND) esté bien conectado." }
+                ]
+            },
+            {
+                title: "Detector de Temperatura con Pantalla",
+                difficulty: "Intermedio",
+                time: "2 horas",
+                intro: "Un termómetro digital inteligente que utiliza el sensor DHT11 para medir temperatura y humedad, mostrando los resultados en un display LCD I2C y activando una alarma LED al superar los 28°C.",
+                materiales: [
+                    "Placa Arduino Uno",
+                    "Sensor de Temperatura y Humedad DHT11",
+                    "Pantalla LCD 16x2 con Módulo I2C",
+                    "LED y Resistencia 220Ω",
+                    "Cables Jumper Macho-Macho y Macho-Hembra"
+                ],
+                pines: [
+                    "<strong>DHT11:</strong> VCC a 5V, GND a GND, DATA al Pin Digital 2.",
+                    "<strong>Pantalla LCD:</strong> VCC a 5V, GND a GND, SDA al Pin A4, SCL al Pin A5.",
+                    "<strong>LED:</strong> Ánodo al Pin 8; Cátodo a GND."
+                ],
+                diagram: "circuito_temperatura.png",
+                photos: [
+                    { src: "Detector de Temperatura con Pantalla/WhatsApp Image 2026-05-15 at 12.49.25 PM.jpeg", label: "Sensor y LCD" },
+                    { src: "Detector de Temperatura con Pantalla/WhatsApp Image 2026-05-15 at 12.49.25 PM (1).jpeg", label: "Cableado I2C" },
+                    { src: "Detector de Temperatura con Pantalla/WhatsApp Image 2026-05-15 at 12.49.25 PM (2).jpeg", label: "Prototipo Final" },
+                    { src: "Detector de Temperatura con Pantalla/WhatsApp Image 2026-05-15 at 12.49.26 PM.jpeg", label: "Prueba de Calor" }
+                ],
+                code: `#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+#include <DHT.h>
+
+#define DHTPIN 2
+#define DHTTYPE DHT11
+DHT dht(DHTPIN, DHTTYPE);
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+void setup() {
+  Serial.begin(9600);
+  dht.begin();
+  lcd.init();
+  lcd.backlight();
+  pinMode(8, OUTPUT);
+}
+
+void loop() {
+  float t = dht.readTemperature();
+  float h = dht.readHumidity();
+  
+  lcd.setCursor(0,0);
+  lcd.print("Temp: "); lcd.print(t, 1); lcd.print("C");
+  lcd.setCursor(0,1);
+  lcd.print("Hum:  "); lcd.print(h, 1); lcd.print("%");
+  
+  if(t > 28.0) digitalWrite(8, HIGH);
+  else digitalWrite(8, LOW);
+  delay(2000);
+}`,
+                pasos: [
+                    "<strong>1. Instalación de Librerías:</strong> En Arduino IDE ve a <em>Herramientas > Gestionar Librerías</em>. Busca e instala 'DHT sensor library' (Adafruit) y 'LiquidCrystal I2C'.",
+                    "<strong>2. Conexión I2C:</strong> Conecta el SDA del LCD al pin A4 y SCL al pin A5. Estos son los pines específicos para comunicación I2C en el Arduino Uno.",
+                    "<strong>3. Conexión del Sensor:</strong> El DHT11 tiene 3 o 4 pines. Asegúrate de conectar el pin de señal al digital 2.",
+                    "<strong>4. Ajuste de Contraste:</strong> Si al encender no ves letras, gira el pequeño tornillo azul detrás de la pantalla con un destornillador.",
+                    "<strong>5. Prueba de Alarma:</strong> Sube el código y frota el sensor con tus dedos para subir la temperatura."
+                ],
+                fallas: [
+                    { falla: "¿La pantalla solo muestra cuadros blancos?", solucion: "Ajusta el potenciómetro de contraste en el módulo I2C (pieza azul detrás del LCD)." },
+                    { falla: "¿Lectura de 'nan' en el sensor?", solucion: "Verifica que el DHT11 esté bien alimentado (5V) y que el pin de señal esté en el Pin 2." },
+                    { falla: "¿Error: 'LiquidCrystal_I2C.h' no encontrado?", solucion: "Vuelve al gestor de librerías e instala la versión de 'Frank de Brabander'." }
+                ]
+            },
+            {
+                title: "Detector de Distancia Ultrasónico",
+                difficulty: "Intermedio",
+                time: "1.5 horas",
+                intro: "Sistema de medición de distancia en tiempo real que utiliza ondas de sonido (HC-SR04). Ideal para aplicaciones de robótica y sensores de proximidad.",
+                materiales: [
+                    "Placa Arduino Uno",
+                    "Sensor Ultrasónico HC-SR04",
+                    "Pantalla LCD 16x2 con I2C",
+                    "Cables Jumper",
+                    "Protoboard"
+                ],
+                pines: [
+                    "<strong>HC-SR04:</strong> VCC a 5V, GND a GND, Trig al Pin 9, Echo al Pin 10.",
+                    "<strong>LCD I2C:</strong> SDA a A4, SCL a A5, VCC a 5V, GND a GND."
+                ],
+                diagram: "circuito_distancia.jpeg",
+                photos: [
+                    { src: "detector de distancia/WhatsApp Image 2026-05-15 at 12.49.25 PM (1).jpeg", label: "Sensor Ultrasónico" },
+                    { src: "detector de distancia/WhatsApp Image 2026-05-15 at 12.49.25 PM (2).jpeg", label: "Montaje en Proto" }
+                ],
+                code: `#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+const int Trig = 9, Echo = 10;
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+void setup() {
+  pinMode(Trig, OUTPUT);
+  pinMode(Echo, INPUT);
+  lcd.init();
+  lcd.backlight();
+  lcd.print("Iniciando...");
+}
+
+void loop() {
+  digitalWrite(Trig, LOW); delayMicroseconds(2);
+  digitalWrite(Trig, HIGH); delayMicroseconds(10);
+  digitalWrite(Trig, LOW);
+  
+  long dur = pulseIn(Echo, HIGH);
+  int dist = dur * 0.034 / 2;
+  
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("Distancia:");
+  lcd.setCursor(0,1);
+  lcd.print(dist);
+  lcd.print(" cm");
+  delay(500);
+}`,
+                pasos: [
+                    "<strong>1. Configuración de Hardware:</strong> Conecta el pin Trig al 9 y el Echo al 10. Alimenta el sensor con los 5V directos del Arduino.",
+                    "<strong>2. Entendiendo el código:</strong> El sensor envía un sonido (Trig) y mide el tiempo que tarda en volver (Echo). La división entre 2 es necesaria porque el sonido hace el viaje de ida y vuelta.",
+                    "<strong>3. Carga del programa:</strong> En Arduino IDE, selecciona puerto y placa (Uno), y presiona la flecha de subir.",
+                    "<strong>4. Pruebas:</strong> Coloca tu mano frente al sensor y observa cómo el valor en cm cambia instantáneamente.",
+                    "<strong>5. Calibración:</strong> Si notas errores, verifica que el sensor esté perpendicular a la superficie que mide."
+                ],
+                fallas: [
+                    { falla: "¿Lectura fija en 0cm o valores locos?", solucion: "Revisa los cables de Trig y Echo. A veces el sensor se 'traba' si los cables están flojos." },
+                    { falla: "¿La pantalla parpadea mucho?", solucion: "Asegúrate de que el delay sea de al menos 100ms o 500ms para que el LCD tenga tiempo de actualizar." },
+                    { falla: "¿No sube el código?", solucion: "Verifica que el puerto COM seleccionado en Arduino IDE sea el correcto (puedes verlo en el Administrador de Dispositivos)." }
+                ]
+            }
+        ];
+
+        function loadLab(index, btn) {
+            // Update nav buttons
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const lab = labsData[index];
+            const content = document.getElementById('content');
+
+            // Build Photos HTML
+            let photosHtml = '';
+            lab.photos.forEach(ph => {
+                photosHtml += `
+                    <div class="img-box" onclick="viewImage('${ph.src}')">
+                        <img src="${ph.src}" alt="${ph.label}">
+                        <div class="img-label">${ph.label}</div>
+                    </div>
+                `;
+            });
+
+            // Build Materials HTML
+            let matHtml = '';
+            lab.materiales.forEach(m => matHtml += `<li>• ${m}</li>`);
+
+            // Build Steps HTML
+            let stepsHtml = '';
+            lab.pasos.forEach(s => stepsHtml += `<li style="margin-bottom:12px;">${s}</li>`);
+
+            // Build Failures HTML
+            let failuresHtml = '';
+            lab.fallas.forEach(f => {
+                failuresHtml += `
+                    <div style="background: white; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #fee2e2;">
+                        <div style="color: #b91c1c; font-weight: bold; font-size: 0.9rem;">⚠️ Falla: ${f.falla}</div>
+                        <div style="color: #166534; font-size: 0.9rem;">✅ Solución: ${f.solucion}</div>
+                    </div>
+                `;
+            });
+
+            content.innerHTML = `
+                <div class="lab-header">
+                    <h1 class="lab-title">${lab.title}</h1>
+                    <div class="lab-badges">
+                        <span class="badge badge-dif">${lab.difficulty}</span>
+                        <span class="badge badge-time">⏱ ${lab.time}</span>
+                    </div>
+                    <p>${lab.intro}</p>
+                </div>
+
+                <div class="section-title">📦 Materiales Requeridos</div>
+                <ul style="list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">${matHtml}</ul>
+
+                <div class="section-title">🔌 Esquema del Circuito</div>
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <img src="${lab.diagram}" style="max-width: 100%; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); cursor: zoom-in;" onclick="viewImage('${lab.diagram}')">
+                </div>
+
+                <div class="section-title">📌 Detalle de Conexiones</div>
+                <div class="pines-box">
+                    <ul>${lab.pines.map(p => `<li>• ${p}</li>`).join('')}</ul>
+                </div>
+
+                <div class="section-title">📸 Galería del Proyecto</div>
+                <div class="img-grid">${photosHtml}</div>
+
+                <div class="section-title">💻 Código Fuente</div>
+                <div class="code-container">
+                    <button class="copy-btn" onclick="copyCode(this)">Copiar 📋</button>
+                    <pre><code>${lab.code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>
+                </div>
+
+                <div class="section-title">✅ Guía de Montaje Paso a Paso</div>
+                <ol style="margin-left: 20px;">${stepsHtml}</ol>
+
+                <div class="section-title">🛠️ Solución de Problemas (Fallas Comunes)</div>
+                <div style="background: #fef2f2; padding: 20px; border-radius: 16px; margin-bottom: 40px;">
+                    ${failuresHtml}
+                </div>
+
+                <div style="background: linear-gradient(135deg, #8b5cf6, #ec4899); padding: 30px; border-radius: 24px; color: white; margin-top: 50px;">
+                    <h2 style="margin-bottom: 15px;">📥 Guía: ¿Cómo usar Arduino IDE?</h2>
+                    <p style="margin-bottom: 10px;">Si es tu primera vez programando, sigue estos pasos:</p>
+                    <ul style="list-style: none; font-size: 0.95rem; opacity: 0.9;">
+                        <li><strong>1. Descarga:</strong> Ve a <a href="https://www.arduino.cc/en/software" target="_blank" style="color: white; font-weight: bold;">arduino.cc</a> y descarga la versión estable.</li>
+                        <li><strong>2. Conexión:</strong> Conecta tu placa al puerto USB. Verás que un LED de la placa se enciende.</li>
+                        <li><strong>3. Selección:</strong> En el menú <em>Herramientas > Placa</em> elige "Arduino Uno" (o ESP32 si aplica).</li>
+                        <li><strong>4. Puerto:</strong> En <em>Herramientas > Puerto</em> selecciona el que diga (Arduino Uno).</li>
+                        <li><strong>5. Flecha (Subir):</strong> El botón de la flecha arriba a la izquierda compila y envía el programa.</li>
+                    </ul>
+                </div>
+            `;
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function viewImage(src) {
+            const overlay = document.getElementById('imgOverlay');
+            const img = document.getElementById('overlayImg');
+            img.src = src;
+            overlay.style.display = 'flex';
+        }
+
+        function copyCode(btn) {
+            const code = btn.nextElementSibling.innerText;
+            navigator.clipboard.writeText(code);
+            const originalText = btn.innerText;
+            btn.innerText = '¡Copiado! ✓';
+            btn.style.background = '#10b981';
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.style.background = 'rgba(255,255,255,0.1)';
+            }, 2000);
+        }
+
+        // Init with first lab
+        document.addEventListener('DOMContentLoaded', () => {
+            loadLab(0, document.querySelector('.nav-btn'));
+        });
+    </script>
+</body>
+</html>
