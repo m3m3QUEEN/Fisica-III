@@ -54,7 +54,7 @@ index.html
 
 Puedes abrir el cuaderno interactivo desde el siguiente enlace:
 
-🔗 [Abrir cuaderno virtual](https://m3m3queen.github.io/Fisica-III/Movimiento_Ondulatorio/index.html)
+🔗 [Abrir cuaderno virtual](https://m3m3queen.github.io/Fisica-III/Movimiento_Ondulatorio2/index.html)
 
 ---
 
